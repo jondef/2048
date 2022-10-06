@@ -10,6 +10,8 @@ if __name__ == '__main__':
     # calling start_game function
     # to initialize the matrix
     mat = logic.start_game()
+else:
+    raise Exception("This file is not meant to be imported")
 
 while (True):
 
@@ -74,4 +76,4 @@ while (True):
 
     # print the matrix after each
     # move.
-    print(mat)
+    logic.print_mat(mat)

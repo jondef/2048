@@ -38,16 +38,9 @@ def add_new_2(mat):
     r = random.randint(0, 3)
     c = random.randint(0, 3)
 
-    # while loop will break as the
-    # random cell chosen will be empty
-    # (or contains zero)
-    while (mat[r] != 0):
-        r = random.randint(0, 3)
-        c = random.randint(0, 3)
-
     # we will place a 2 at that empty
     # random cell.
-    mat[r] = 2
+    mat[r][c] = 2
 
 
 # function to get the current
@@ -203,6 +196,87 @@ def move_left(grid):
     # or different
     return new_grid, changed
 
+# Class of different styles
+class style():
+    BLACK = '\033[30m'
+    RED = '\033[31m'
+    GREEN = '\033[32m'
+    YELLOW = '\033[33m'
+    BLUE = '\033[34m'
+    MAGENTA = '\033[35m'
+    CYAN = '\033[36m'
+    WHITE = '\033[37m'
+    UNDERLINE = '\033[4m'
+    RESET = '\033[0m'
+
+    CEND = '\33[0m'
+    CBOLD = '\33[1m'
+    CITALIC = '\33[3m'
+    CURL = '\33[4m'
+    CBLINK = '\33[5m'
+    CBLINK2 = '\33[6m'
+    CSELECTED = '\33[7m'
+
+    CBLACK = '\33[30m'
+    CRED = '\33[31m'
+    CGREEN = '\33[32m'
+    CYELLOW = '\33[33m'
+    CBLUE = '\33[34m'
+    CVIOLET = '\33[35m'
+    CBEIGE = '\33[36m'
+    CWHITE = '\33[37m'
+
+    CBLACKBG = '\33[40m'
+    CREDBG = '\33[41m'
+    CGREENBG = '\33[42m'
+    CYELLOWBG = '\33[43m'
+    CBLUEBG = '\33[44m'
+    CVIOLETBG = '\33[45m'
+    CBEIGEBG = '\33[46m'
+    CWHITEBG = '\33[47m'
+
+    CGREY = '\33[90m'
+    CRED2 = '\33[91m'
+    CGREEN2 = '\33[92m'
+    CYELLOW2 = '\33[93m'
+    CBLUE2 = '\33[94m'
+    CVIOLET2 = '\33[95m'
+    CBEIGE2 = '\33[96m'
+    CWHITE2 = '\33[97m'
+
+def print_mat(mat):
+    for i in range(4):
+        for j in range(4):
+            # print with colors
+            if (mat[i][j] == 2048):
+                print('\033[1;32;40m', end="")
+            elif (mat[i][j] == 1024):
+                print('\033[1;33;40m', end="")
+            elif (mat[i][j] == 512):
+                print('\033[1;34;40m', end="")
+            elif (mat[i][j] == 256):
+                print('\033[1;35;40m', end="")
+            elif (mat[i][j] == 128):
+                print('\033[1;36;40m', end="")
+            elif (mat[i][j] == 64):
+                print('\033[1;37;40m', end="")
+            elif (mat[i][j] == 32):
+                print('\033[1;38;40m', end="")
+            elif (mat[i][j] == 16):
+                print('\033[1;39;40m', end="")
+            elif (mat[i][j] == 8):
+                print(style.BLACK, end="")
+            elif (mat[i][j] == 4):
+                print(style.CGREEN, end="")
+            elif (mat[i][j] == 2):
+                print(style.RED, end="")
+            elif (mat[i][j] == 0):
+                print(style.BLUE, end="")
+
+            print(mat[i][j], end="\t")  # print cell content
+
+            print(style.RESET, end="")  # reset color
+        print("", end="\n")  # print new line
 
 # function to update the matrix
 # if we move / swipe right
