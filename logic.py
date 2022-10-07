@@ -185,6 +185,14 @@ def transpose(mat):
 
 
 class style():
+    FG_WHITE = "\033[37m"
+    FG_BLACK = "\033[30m"
+
+    BG_GRAY = "\033[47m"
+    BG_ORANGE = "\033[43m"
+    BG_RED = "\033[41m"
+    BG_YELLOW = "\033[103m"
+
     BLACK = '\033[30m'
     RED = '\033[31m'
     GREEN = '\033[32m'
@@ -237,27 +245,27 @@ def print_mat(mat):
         for j in range(4):
             # print with colors
             if (mat[i][j] == 2048):
-                print('\033[1;32;40m', end="")
+                print(style.FG_WHITE + style.BG_YELLOW, end="")
             elif (mat[i][j] == 1024):
-                print('\033[1;33;40m', end="")
+                print(style.FG_WHITE + style.BG_YELLOW, end="")
             elif (mat[i][j] == 512):
-                print('\033[1;34;40m', end="")
+                print(style.FG_WHITE + style.BG_YELLOW, end="")
             elif (mat[i][j] == 256):
-                print('\033[1;35;40m', end="")
+                print(style.FG_WHITE + style.BG_YELLOW, end="")
             elif (mat[i][j] == 128):
-                print('\033[1;36;40m', end="")
+                print(style.FG_WHITE + style.BG_YELLOW, end="")
             elif (mat[i][j] == 64):
-                print('\033[1;37;40m', end="")
+                print(style.FG_WHITE + style.BG_RED, end="")
             elif (mat[i][j] == 32):
-                print('\033[1;38;40m', end="")
+                print(style.FG_WHITE + style.BG_RED, end="")
             elif (mat[i][j] == 16):
-                print('\033[1;39;40m', end="")
+                print(style.FG_WHITE + style.BG_ORANGE, end="")
             elif (mat[i][j] == 8):
-                print(style.BLACK, end="")
+                print(style.FG_WHITE + style.BG_ORANGE, end="")
             elif (mat[i][j] == 4):
-                print(style.CGREEN, end="")
+                print(style.FG_BLACK + style.BG_GRAY, end="")
             elif (mat[i][j] == 2):
-                print(style.RED, end="")
+                print(style.FG_BLACK + style.BG_GRAY, end="")
             elif (mat[i][j] == 0):
                 print(style.BLUE, end="")
 
