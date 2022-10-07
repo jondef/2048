@@ -25,14 +25,12 @@ def main():
             print("Invalid Move")
             continue
 
-        print("GAME IS NOT OVER" if game_finished == 0 else "GAME OVER")
-
         if (game_finished == 0):
             logic.add_new_2(mat)
         else:
+            print("GAME OVER")
             break
 
-        # print the matrix after each move.
         logic.print_mat(mat)
 
 
