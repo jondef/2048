@@ -5,25 +5,29 @@ def main():
     mat = logic.start_game()
 
     while (True):
-
         x = input("Press the command : ")
 
         if (x == 'W' or x == 'w'):
-            mat, flag = logic.move_up(mat)
+            mat, mat_changed = logic.move_up(mat)
         elif (x == 'S' or x == 's'):
-            mat, flag = logic.move_down(mat)
+            mat, mat_changed = logic.move_down(mat)
         elif (x == 'A' or x == 'a'):
-            mat, flag = logic.move_left(mat)
+            mat, mat_changed = logic.move_left(mat)
         elif (x == 'D' or x == 'd'):
-            mat, flag = logic.move_right(mat)
+            mat, mat_changed = logic.move_right(mat)
         else:
             print("Invalid Key Pressed")
             continue
 
-        status = logic.is_game_finished(mat)
-        print("GAME IS NOT OVER" if status == 0 else "GAME OVER")
+        game_finished = logic.is_game_finished(mat)
 
-        if (status == 0):
+        if game_finished == 0 and mat_changed is False:
+            print("Invalid Move")
+            continue
+
+        print("GAME IS NOT OVER" if game_finished == 0 else "GAME OVER")
+
+        if (game_finished == 0):
             logic.add_new_2(mat)
         else:
             break
