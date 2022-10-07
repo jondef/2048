@@ -1,65 +1,72 @@
 # logic.py to be
 # imported in the 2048.py file
 
-# importing random package
-# for methods to generate random
-# numbers.
 import random
+import numpy as np
 
 
-# function to initialize game / grid
-# at the start
 def start_game():
-    # declaring an empty list then
-    # appending 4 list each with four
-    # elements as 0.
-    mat = []
-    for i in range(4):
-        mat.append([0] * 4)
+    """
+    This function will initialize the grid at the start of the game.
+    It will create a 4x4 matrix with all the elements as 0.
+    Then it will add a 2 in the grid at random position.
+    The grid will be returned.
+    :return: np.array
+    """
+    # create the board
+    mat = np.array([[0] * 4] * 4)
 
-    # printing controls for user
-    print("Commands are as follows : ")
+    # print controls
+    print("Commands are as follows: ")
     print("'W' or 'w' : Move Up")
     print("'S' or 's' : Move Down")
     print("'A' or 'a' : Move Left")
     print("'D' or 'd' : Move Right")
 
-    # calling the function to add
-    # a new 2 in grid after every step
     add_new_2(mat)
     return mat
 
 
-# function to add a new 2 in
-# grid at any random empty cell
 def add_new_2(mat):
-    # choosing a random index for
-    # row and column.
+    """
+    This function will add a new 2 in the grid at a random empty position.
+    :param mat: np.array
+    :return: None
+    """
+    # choose a random index for row and column.
     r = random.randint(0, 3)
     c = random.randint(0, 3)
 
-    # we will place a 2 at that empty
-    # random cell.
+    # while loop to iterate until an empty cell is found.
+    while mat[r][c] != 0:
+        r = random.randint(0, 3)
+        c = random.randint(0, 3)
+
     mat[r][c] = 2
 
 
-# function to get the current
-# state of game
-def get_current_state(mat):
-    # if any cell contains
-    # 2048 we have won
+def is_game_finished(mat):
+    """
+    This function will return the current state of the game.
+    0 if the game is not over
+    1 if the game is over and the player has won
+    -1 if the game is over and the player has lost
+    :param mat: np.array
+    :return: int
+    """
+    # if any cell contains 2048 we have won
     for i in range(4):
         for j in range(4):
             if (mat[i][j] == 2048):
-                return 'WON'
+                return 1
 
     # if we are still left with
-    # atleast one empty cell
+    # at least one empty cell
     # game is not yet over
     for i in range(4):
         for j in range(4):
             if (mat[i][j] == 0):
-                return 'GAME NOT OVER'
+                return 0
 
     # or if no cell is empty now
     # but if after any move left, right,
@@ -69,18 +76,18 @@ def get_current_state(mat):
     for i in range(3):
         for j in range(3):
             if (mat[i][j] == mat[i + 1][j] or mat[i][j] == mat[i][j + 1]):
-                return 'GAME NOT OVER'
+                return 0
 
     for j in range(3):
         if (mat[3][j] == mat[3][j + 1]):
-            return 'GAME NOT OVER'
+            return 0
 
     for i in range(3):
         if (mat[i][3] == mat[i + 1][3]):
-            return 'GAME NOT OVER'
+            return 0
 
     # else we have lost the game
-    return 'LOST'
+    return -1
 
 
 # all the functions defined below
@@ -177,26 +184,6 @@ def transpose(mat):
     return new_mat
 
 
-# function to update the matrix
-# if we move / swipe left
-def move_left(grid):
-    # first compress the grid
-    new_grid, changed1 = compress(grid)
-
-    # then merge the cells.
-    new_grid, changed2 = merge(new_grid)
-
-    changed = changed1 or changed2
-
-    # again compress after merging.
-    new_grid, temp = compress(new_grid)
-
-    # return new matrix and bool changed
-    # telling whether the grid is same
-    # or different
-    return new_grid, changed
-
-# Class of different styles
 class style():
     BLACK = '\033[30m'
     RED = '\033[31m'
@@ -244,6 +231,7 @@ class style():
     CBEIGE2 = '\33[96m'
     CWHITE2 = '\33[97m'
 
+
 def print_mat(mat):
     for i in range(4):
         for j in range(4):
@@ -273,10 +261,31 @@ def print_mat(mat):
             elif (mat[i][j] == 0):
                 print(style.BLUE, end="")
 
-            print(mat[i][j], end="\t")  # print cell content
+            print(mat[i][j], end="")  # print cell content
 
-            print(style.RESET, end="")  # reset color
+            print(style.RESET, end="\t")  # reset color
         print("", end="\n")  # print new line
+
+
+# function to update the matrix
+# if we move / swipe left
+def move_left(grid):
+    # first compress the grid
+    new_grid, changed1 = compress(grid)
+
+    # then merge the cells.
+    new_grid, changed2 = merge(new_grid)
+
+    changed = changed1 or changed2
+
+    # again compress after merging.
+    new_grid, temp = compress(new_grid)
+
+    # return new matrix and bool changed
+    # telling whether the grid is same
+    # or different
+    return new_grid, changed
+
 
 # function to update the matrix
 # if we move / swipe right
@@ -325,6 +334,3 @@ def move_down(grid):
     new_grid = transpose(new_grid)
     return new_grid, changed
 
-# this file only contains all the logic
-# functions to be called in main function
-# present in the other file

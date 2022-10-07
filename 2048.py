@@ -1,79 +1,36 @@
-# 2048.py
-
-# importing the logic.py file
-# where we have written all the
-# logic functions used.
 import logic
 
-# Driver coded
-if __name__ == '__main__':
-    # calling start_game function
-    # to initialize the matrix
+
+def main():
     mat = logic.start_game()
-else:
-    raise Exception("This file is not meant to be imported")
 
-while (True):
+    while (True):
 
-    # taking the user input
-    # for next step
-    x = input("Press the command : ")
+        x = input("Press the command : ")
 
-    # we have to move up
-    if (x == 'W' or x == 'w'):
-
-        # call the move_up function
-        mat, flag = logic.move_up(mat)
-
-        # get the current state and print it
-        status = logic.get_current_state(mat)
-        print(status)
-
-        # if game not ove then continue
-        # and add a new two
-        if (status == 'GAME NOT OVER'):
-            logic.add_new_2(mat)
-
-        # else break the loop
+        if (x == 'W' or x == 'w'):
+            mat, flag = logic.move_up(mat)
+        elif (x == 'S' or x == 's'):
+            mat, flag = logic.move_down(mat)
+        elif (x == 'A' or x == 'a'):
+            mat, flag = logic.move_left(mat)
+        elif (x == 'D' or x == 'd'):
+            mat, flag = logic.move_right(mat)
         else:
-            break
+            print("Invalid Key Pressed")
+            continue
 
-    # the above process will be followed
-    # in case of each type of move
-    # below
+        status = logic.is_game_finished(mat)
+        print("GAME IS NOT OVER" if status == 0 else "GAME OVER")
 
-    # to move down
-    elif (x == 'S' or x == 's'):
-        mat, flag = logic.move_down(mat)
-        status = logic.get_current_state(mat)
-        print(status)
-        if (status == 'GAME NOT OVER'):
+        if (status == 0):
             logic.add_new_2(mat)
         else:
             break
 
-    # to move left
-    elif (x == 'A' or x == 'a'):
-        mat, flag = logic.move_left(mat)
-        status = logic.get_current_state(mat)
-        print(status)
-        if (status == 'GAME NOT OVER'):
-            logic.add_new_2(mat)
-        else:
-            break
+        # print the matrix after each move.
+        logic.print_mat(mat)
 
-    # to move right
-    elif (x == 'D' or x == 'd'):
-        mat, flag = logic.move_right(mat)
-        status = logic.get_current_state(mat)
-        print(status)
-        if (status == 'GAME NOT OVER'):
-            logic.add_new_2(mat)
-        else:
-            break
-    else:
-        print("Invalid Key Pressed")
 
-    # print the matrix after each
-    # move.
-    logic.print_mat(mat)
+if __name__ == '__main__':
+    main()
