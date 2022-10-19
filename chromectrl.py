@@ -20,6 +20,8 @@ class ChromeDebuggerControl(object):
             raise Exception("No pages to attach to!")
         elif len(pages) == 1:
             page = pages[0]
+        elif '2048' in list(map(lambda x: x["title"], pages)):
+            page = list(filter(lambda x: x["title"] == "2048", pages))[0]
         else:
             print("Select a page to attach to:")
             for i, page in enumerate(pages):
