@@ -19,7 +19,7 @@ def find_best_move(board):
     bestmove = result.index(max(result))
 
     for m in move_args:
-        print("move: %d score: %.4f" % (m, result[m]))
+        print(f"move: {m:d} score: {result[m]:.4f}")
 
     return bestmove
     

@@ -49,12 +49,12 @@ class Generic2048Control(object):
         return self.execute('''
             var keyboardEvent = document.createEventObject ? document.createEventObject() : document.createEvent("Events");
             if(keyboardEvent.initEvent)
-                keyboardEvent.initEvent("%(action)s", true, true);
-            keyboardEvent.keyCode = %(key)s;
-            keyboardEvent.which = %(key)s;
+                keyboardEvent.initEvent("{action}", true, true);
+            keyboardEvent.keyCode = {key};
+            keyboardEvent.which = {key};
             var element = document.body || document;
-            element.dispatchEvent ? element.dispatchEvent(keyboardEvent) : element.fireEvent("on%(action)s", keyboardEvent);
-            ''' % locals())
+            element.dispatchEvent ? element.dispatchEvent(keyboardEvent) : element.fireEvent("on{action}", keyboardEvent);
+            '''.format(**locals()))
 
 class Fast2048Control(Generic2048Control):
     ''' Control 2048 by hooking the GameManager and executing its move() function.
@@ -109,7 +109,7 @@ class Fast2048Control(Generic2048Control):
     def execute_move(self, move):
         # We use UDLR ordering; 2048 uses URDL ordering
         move = [0, 2, 3, 1][move]
-        self.execute('GameManager._instance.move(%d)' % move)
+        self.execute(f'GameManager._instance.move({move:d})')
 
 class Keyboard2048Control(Generic2048Control):
     ''' Control 2048 by accessing the DOM and using key events.

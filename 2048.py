@@ -20,7 +20,7 @@ import heuristicai as ai #for task 4
 def print_board(m):
     for row in m:
         for c in row:
-            print('%8d' % c, end=' ')
+            print(f'{c:8d}', end=' ')
         print()
 
 def _to_val(c):
@@ -60,13 +60,13 @@ def play_game(gamectrl):
         move = find_best_move(board)
         if move < 0:
             break
-        print("%010.6f: Score %d, Move %d: %s" % (time.time() - start, gamectrl.get_score(), moveno, movename(move)))
+        print(f"{time.time() - start:010.6f}: Score {gamectrl.get_score():d}, Move {moveno:d}: {movename(move)}")
         gamectrl.execute_move(move)
 
     score = gamectrl.get_score()
     board = gamectrl.get_board()
     maxval = max(max(row) for row in to_val(board))
-    print("Game over. Final score %d; highest tile %d." % (score, maxval))
+    print(f"Game over. Final score {score:d}; highest tile {maxval:d}.")
 
 def parse_args(argv):
     import argparse

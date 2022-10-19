@@ -15,7 +15,7 @@ class ChromeDebuggerControl(object):
                                       "Please install it (pip install websocket-client) then try again.")
 
         # Obtain the list of pages
-        pages = json.loads(urllib.urlopen('http://localhost:%d/json/list' % port).read())
+        pages = json.loads(urllib.urlopen(f'http://localhost:{port:d}/json/list').read())
         if len(pages) == 0:
             raise Exception("No pages to attach to!")
         elif len(pages) == 1:
@@ -25,7 +25,7 @@ class ChromeDebuggerControl(object):
         else:
             print("Select a page to attach to:")
             for i, page in enumerate(pages):
-                print("%d) %s" % (i+1, page['title'].encode('unicode_escape')))
+                print(f"{i + 1:d}) {page['title'].encode('unicode_escape')}")
             while 1:
                 try:
                     pageidx = int(input("Selection? "))
@@ -86,8 +86,7 @@ class ChromeDebuggerControl(object):
 
         resp = self.results.pop(id)
         if 'error' in resp:
-            raise Exception("Command %s(%s) failed: %s (%d)" % (
-                method, ', '.join('%s=%r' % (k,v) for k,v in params.iteritems()), resp['error']['message'], resp['error']['code']))
+            raise Exception(f"Command {method}({', '.join(f'{k}={v!r}' for k, v in params.iteritems())}) failed: {resp['error']['message']} ({resp['error']['code']:d})")
         return resp['result']
 
     def execute(self, cmd):
