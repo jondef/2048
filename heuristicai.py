@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 
+
 import game
 import sys
 
@@ -17,40 +18,127 @@ class Node:
         self.parent = parent
         self.board = board
 
+        self.tile_value_score = get_tile_value_score(board)
+        self.empty_tile_score = get_empty_tiles_score(board)
+        #self.score = self.empty_tile_score if self.empty_tile_score >= 8 else self.tile_value_score
+        self.score = self.get_score()
+
         if depth != 0:  # only create children if we still have depth left
-            self.left = Node(execute_move(LEFT, board), self, depth=depth - 1)
-            self.right = Node(execute_move(RIGHT, board), self, depth=depth - 1)
-            self.up = Node(execute_move(UP, board), self, depth=depth - 1)
-            self.down = Node(execute_move(DOWN, board), self, depth=depth - 1)
+            self.left = Node(self.add_two_or_four(execute_move(LEFT, board)), self, depth=depth - 1)
+            self.right = Node(self.add_two_or_four(execute_move(RIGHT, board)), self, depth=depth - 1)
+            self.up = Node(self.add_two_or_four(execute_move(UP, board)), self, depth=depth - 1)
+            self.down = Node(self.add_two_or_four(execute_move(DOWN, board)), self, depth=depth - 1)
+            self.children = [self.left, self.right, self.up, self.down]
         else:
             self.left = None
             self.right = None
             self.up = None
             self.down = None
+            self.children = []
+        pass
 
-        self.tile_value_score = get_tile_value_score(board)
-        self.empty_tile_score = get_empty_tiles_score(board)
+    def get_score(self):
+        score = 0
+        current_node = self
+
+        # go as close to the root node as possible
+        while current_node.parent is not None:
+            score += (current_node.empty_tile_score * current_node.tile_value_score)
+            current_node = current_node.parent
+
+        return score
+
+    def get_move(self):
+        """
+        Returns the move that was made to get to this node.
+        :return: the move that was made to get to this node
+        """
+        current_node = self
+        prev_node = None
+
+        # go as close to the root node as possible
+        while current_node.parent is not None:
+            prev_node = current_node
+            current_node = current_node.parent
+
+        if current_node.left == prev_node:
+            return LEFT
+        elif current_node.right == prev_node:
+            return RIGHT
+        elif current_node.up == prev_node:
+            return UP
+        elif current_node.down == prev_node:
+            return DOWN
+        else:
+            return -1
+
+    def add_two_or_four(self, board):
+        """
+        Add a 2 or 4 to a random empty cell.
+        """
+        empty_cells = np.argwhere(board == 0)
+        # if the board is full, break and penalize the score
+        if len(empty_cells) == 0:
+            self.score = self.score * 0.5
+            return board
+        random_cell = random.choice(empty_cells)
+        board[random_cell[0]][random_cell[1]] = np.random.choice([2, 4], 1, p=[0.9, 0.1])
+        return board
+
+    def getBestMove(self):
+        """
+        Navigates the tree and finds out which move is the best
+        based on the score of the leafs.
+        :return: the best move to make
+        """
+        # if node is not a parent node, break
+        if self.parent is not None:
+            return None
+
+        # traverse the tree and add all leafs to a list
+        leafs = self.get_leaf_nodes()
+        best_leaf = leafs[0]
+
+        # if all leafs have the same score, choose a random move
+        if all(leaf.score == leafs[0].score for leaf in leafs):
+            return random.choice(leafs).get_move()
+
+        # take the leaf with the highest score
+        for leaf in leafs:
+            if leaf.score > best_leaf.score:
+                best_leaf = leaf
+
+        # find the move that was made to get to the best leaf
+        return best_leaf.get_move()
+
+    def get_leaf_nodes(self):
+        leafs = []
+        def _get_leaf_nodes(node):
+            if node is not None:
+                if len(node.children) == 0:
+                    leafs.append(node)
+                for n in node.children:
+                    _get_leaf_nodes(n)
+        _get_leaf_nodes(self)
+        return leafs
 
 def find_best_move(board):
     """
-#Comparison function based on number of empty tiles!
-#Two look aheads and find where empty tiles highest
-#Forbidden direction only when absolutley needed!
+    Comparison function based on number of empty tiles!
+    Two look aheads and find where empty tiles the highest
+    Forbidden direction only when absolutley needed!
 
-#Additional idea -> when certain number of tiles already free, merge to maximize value!
-# if board is half empty, no point in having more space -> focus on merging tiles
+    Additional idea -> when certain number of tiles already free, merge to maximize value!
+    If board is half empty, no point in having more space -> focus on merging tiles
 
     :param board:
     :return: best move to make
     """
-    bestmove = -1    
-    root = Node(board, depth=2)  # build the tree with the possible moves
+    root = Node(board, depth=5)  # build the tree with the possible moves
+    bestmove = root.getBestMove()
 
-
-
-    if bestmove == -1:
-        bestmove = find_best_move_random_agent()
     return bestmove
+
 
 def get_tile_value_score(board):
     """
@@ -58,60 +146,13 @@ def get_tile_value_score(board):
     """
     return np.sum(board ** 2)
 
+
 def get_empty_tiles_score(board):
     """
     Return the score of the board based on the amount of empty tiles in percentage.
     """
     return np.count_nonzero(board == 0)
 
-def bring_two_same_tiles_together(board):
-    """
-    Bring two tiles with the same value together.
-    Return the move that brings the tiles together.
-    """
-    # check if there are two tiles with the same value on the board
-    # if there are, bring them together
-    # if there are no tiles with the same value, return -1
-
-    # check if there are two tiles with the same value on the board
-    # if there are, bring them together
-    # if there are no tiles with the same value, return -1
-    for i in range(3):
-        for j in range(3):
-            if i == 3 and j == 3:
-                return -1
-            if board[i][j] == board[i][j+1]:
-                return RIGHT
-            if board[i][j] == board[i+1][j]:
-                return DOWN
-
-    return -1
-
-def merging_tiles_heuristic(board):
-    """
-    Makes a move based on if two tiles get merged.
-    :return: The move with the highest score or -1 if no move merges tiles together
-    """
-    current_empty_tiles = amount_of_empty_tiles(board)
-
-    if current_empty_tiles == 14: # if start of the game, just make a random move
-        return find_best_move_random_agent()
-
-    # if moving up increases the amount of empty tiles
-    if amount_of_empty_tiles(execute_move(UP, board)) > current_empty_tiles:
-        return UP
-    # if moving left increases the amount of empty tiles
-    if amount_of_empty_tiles(execute_move(LEFT, board)) > current_empty_tiles:
-        return LEFT
-    # if moving down increases the amount of empty tiles
-    if amount_of_empty_tiles(execute_move(DOWN, board)) > current_empty_tiles:
-        return DOWN
-
-    # if moving right increases the amount of empty tiles
-    # if amount_of_empty_tiles(execute_move(RIGHT, board)) > current_empty_tiles:
-    #     return RIGHT
-
-    return -1
 
 def amount_of_empty_tiles(board):
     """
@@ -119,11 +160,6 @@ def amount_of_empty_tiles(board):
     """
     return np.count_nonzero(board == 0)
 
-def random_forbidden_move_agent():
-    """
-    Forbid a move in a random direction.
-    """
-    return random.choice([i for i in range(4) if i != FORBIDDEN_MOVE])
 
 def find_best_move_random_agent():
     return random.choice([UP,DOWN,LEFT,RIGHT])
