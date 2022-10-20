@@ -31,18 +31,18 @@ def score_toplevel_move(move, board):
 
     if board_equals(board,newboard):
         return 0
-	# TODO:
-	# Implement the Expectimax Algorithm.
-	# 1.) Start the recursion until it reach a certain depth
-	# 2.) When you don't reach the last depth, get all possible board states and 
-	#		calculate their scores dependence of the probability this will occur. (recursively)
-	# 3.) When you reach the leaf calculate the board score with your heuristic.
+    # TODO:
+    # Implement the Expectimax Algorithm.
+    # 1.) Start the recursion until it reach a certain depth
+    # 2.) When you don't reach the last depth, get all possible board states and
+    #		calculate their scores dependence of the probability this will occur. (recursively)
+    # 3.) When you reach the leaf calculate the board score with your heuristic.
     return random.randint(1,1000)
 
 def execute_move(move, board):
     """
     move and return the grid without a new random tile 
-	It won't affect the state of the game in the browser.
+    It won't affect the state of the game in the browser.
     """
 
     UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
