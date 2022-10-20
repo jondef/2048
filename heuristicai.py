@@ -11,7 +11,6 @@ import sys
 # Description:			The logic of the AI to beat the game.
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
-FORBIDDEN_MOVE = random.choice([RIGHT])
 
 class Node:
     def __init__(self, board, parent=None, depth=2):
@@ -20,7 +19,6 @@ class Node:
 
         self.tile_value_score = get_tile_value_score(board)
         self.empty_tile_score = get_empty_tiles_score(board)
-        #self.score = self.empty_tile_score if self.empty_tile_score >= 8 else self.tile_value_score
         self.score = self.get_score()
 
         if depth != 0:  # only create children if we still have depth left
@@ -35,7 +33,6 @@ class Node:
             self.up = None
             self.down = None
             self.children = []
-        pass
 
     def get_score(self):
         score = 0
@@ -79,7 +76,7 @@ class Node:
         empty_cells = np.argwhere(board == 0)
         # if the board is full, break and penalize the score
         if len(empty_cells) == 0:
-            self.score = self.score * 0.5
+            self.score *= 0.5
             return board
         random_cell = random.choice(empty_cells)
         board[random_cell[0]][random_cell[1]] = np.random.choice([2, 4], 1, p=[0.9, 0.1])
@@ -135,9 +132,7 @@ def find_best_move(board):
     :return: best move to make
     """
     root = Node(board, depth=5)  # build the tree with the possible moves
-    bestmove = root.getBestMove()
-
-    return bestmove
+    return root.getBestMove()
 
 
 def get_tile_value_score(board):
