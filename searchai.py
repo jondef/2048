@@ -63,7 +63,7 @@ class Node:
 
     def get_score_with_all_possible_moves(self):
         """
-        Calculates the score of the node based on the probability and score of its children.
+        Calculates the score of the move node based on the probability and score of its children.
         :return: None
         """
         empty_cells = np.argwhere(self.board == 0)
@@ -109,20 +109,14 @@ class Node:
 
 def find_best_move(board):
     """
-    Comparison function based on number of empty tiles!
-    Two look aheads and find where empty tiles the highest
-    Forbidden direction only when absolutley needed!
-
-    Additional idea -> when certain number of tiles already free, merge to maximize value!
-    If board is half empty, no point in having more space -> focus on merging tiles
-
-    :param board:
-    :return: best move to make
+    :param board: board
+    :return: best move to make (int)
     """
 
     # adjust the tree depth based on the amount of empty tiles
     empty_tiles = get_empty_tiles_score(board)
 
+    # adjust the scoring bias based on the amount of empty tiles
     global FREE_CELL_BIAS
     FREE_CELL_BIAS = 10 / (empty_tiles if empty_tiles > 0 else 1)
 
@@ -132,14 +126,14 @@ def find_best_move(board):
 
 def get_empty_tiles_score(board):
     """
-    Return the score of the board based on the amount of empty tiles in percentage.
+    Return the number of empty tiles on the board
     """
     return np.count_nonzero(board == 0)
 
 
 def execute_move(move, board):
     """
-    move and return the grid without a new random tile 
+    move and return the grid without placing a new random tile
     It won't affect the state of the game in the browser.
     """
     if move == UP:
