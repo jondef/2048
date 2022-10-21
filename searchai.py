@@ -92,7 +92,7 @@ class Node:
         :param board: the board to calculate the score of
         :return: the score of the board
         """
-        free_cells = get_empty_tiles_score(board)
+        free_cells = np.count_nonzero(board == 0)
         weighted_board_sum = np.sum(board * board_weights)
         return np.dot([1, FREE_CELL_BIAS], [weighted_board_sum, free_cells ** 2])
 
@@ -114,7 +114,7 @@ def find_best_move(board):
     """
 
     # adjust the tree depth based on the amount of empty tiles
-    empty_tiles = get_empty_tiles_score(board)
+    empty_tiles = np.count_nonzero(board == 0)
 
     # adjust the scoring bias based on the amount of empty tiles
     global FREE_CELL_BIAS
@@ -122,14 +122,6 @@ def find_best_move(board):
 
     root = Node(board, depth=1 if empty_tiles > 8 else (2 if empty_tiles > 2 else 3))  # build the tree with the possible moves
     return root.getBestMove()
-
-
-def get_empty_tiles_score(board):
-    """
-    Return the number of empty tiles on the board
-    """
-    return np.count_nonzero(board == 0)
-
 
 def execute_move(move, board):
     """
