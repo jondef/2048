@@ -1,16 +1,21 @@
 import random
+import sys
 
 import numpy as np
 
-
 import game
-import sys
 
 # Author:				chrn (original by nneonneo)
 # Date:				11.11.2016
 # Description:			The logic of the AI to beat the game.
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
+
+board_weights = np.array([[10, 8, 7, 6.5],
+                          [.5, .7, 1, 3],
+                          [-.5, -1.5, -1.8, -2],
+                          [-3.8, -3.7, -3.5, -3]])
+
 
 class Node:
     def __init__(self, board, parent=None, depth=2):
@@ -22,10 +27,10 @@ class Node:
         self.score = self.get_score()
 
         if depth != 0:  # only create children if we still have depth left
-            self.left = Node(self.add_two_or_four(execute_move(LEFT, board)), self, depth=depth - 1)
-            self.right = Node(self.add_two_or_four(execute_move(RIGHT, board)), self, depth=depth - 1)
-            self.up = Node(self.add_two_or_four(execute_move(UP, board)), self, depth=depth - 1)
-            self.down = Node(self.add_two_or_four(execute_move(DOWN, board)), self, depth=depth - 1)
+            self.left = Node(execute_move(LEFT, board), self, depth=depth - 1)
+            self.right = Node(execute_move(RIGHT, board), self, depth=depth - 1)
+            self.up = Node(execute_move(UP, board), self, depth=depth - 1)
+            self.down = Node(execute_move(DOWN, board), self, depth=depth - 1)
             self.children = [self.left, self.right, self.up, self.down]
         else:
             self.left = None
@@ -40,7 +45,7 @@ class Node:
 
         # go as close to the root node as possible
         while current_node.parent is not None:
-            score += (current_node.empty_tile_score * current_node.tile_value_score)
+            score += np.dot(([1, 100], stats(self.board)))
             current_node = current_node.parent
 
         return score
@@ -96,10 +101,6 @@ class Node:
         leafs = self.get_leaf_nodes()
         best_leaf = leafs[0]
 
-        # if all leafs have the same score, choose a random move
-        if all(leaf.score == leafs[0].score for leaf in leafs):
-            return random.choice(leafs).get_move()
-
         # take the leaf with the highest score
         for leaf in leafs:
             if leaf.score > best_leaf.score:
@@ -131,7 +132,7 @@ def find_best_move(board):
     :param board:
     :return: best move to make
     """
-    root = Node(board, depth=5)  # build the tree with the possible moves
+    root = Node(board, depth=2)  # build the tree with the possible moves
     return root.getBestMove()
 
 
@@ -149,6 +150,12 @@ def get_empty_tiles_score(board):
     return np.count_nonzero(board == 0)
 
 
+def stats(board):
+    free = get_empty_tiles_score(board)
+    weighted_board_sum = np.sum(board * board_weights)
+    return [weighted_board_sum, free**2]
+
+
 def amount_of_empty_tiles(board):
     """
     Count the amount of empty tiles on the board.
@@ -157,7 +164,7 @@ def amount_of_empty_tiles(board):
 
 
 def find_best_move_random_agent():
-    return random.choice([UP,DOWN,LEFT,RIGHT])
+    return random.choice([UP, DOWN, LEFT, RIGHT])
 
 
 def execute_move(move, board):
