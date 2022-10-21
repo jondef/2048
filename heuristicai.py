@@ -2,6 +2,7 @@ import random
 import sys
 
 import numpy as np
+from numpy import floor
 
 import game
 
@@ -16,109 +17,95 @@ board_weights = np.array([[10, 8, 7, 6.5],
                           [-.5, -1.5, -1.8, -2],
                           [-3.8, -3.7, -3.5, -3]])
 
+FREE_CELL_BIAS = 1.0
 
 class Node:
-    def __init__(self, board, parent=None, depth=2):
+    def __init__(self, board, parent=None, moveNode=None, moveToNode=None, depth=2):
+        """
+        :param board: the board of the game
+        :param parent: parent node
+        :param moveNode: a move node is a node that was created after a move was made,
+        unlike nodes that are created by randomly placing a 2 or 4 on the board
+        :param moveToNode: the move that was used to get to that node
+        :param depth: remaining depth to build the tree
+        """
         self.parent = parent
         self.board = board
+        self.depth = depth
+        self.moveToNode = moveToNode
+        self.score = 0
 
-        self.tile_value_score = get_tile_value_score(board)
-        self.empty_tile_score = get_empty_tiles_score(board)
-        self.score = self.get_score()
-
-        if depth != 0:  # only create children if we still have depth left
-            self.left = Node(execute_move(LEFT, board), self, depth=depth - 1)
-            self.right = Node(execute_move(RIGHT, board), self, depth=depth - 1)
-            self.up = Node(execute_move(UP, board), self, depth=depth - 1)
-            self.down = Node(execute_move(DOWN, board), self, depth=depth - 1)
-            self.children = [self.left, self.right, self.up, self.down]
+        # only create main nodes if node is not a move node, or node is root node
+        if (depth != 0 and not moveNode) or parent is None:
+            self.children = [
+                Node(execute_move(LEFT, board), self, moveNode=True, moveToNode=LEFT, depth=depth - 1),
+                Node(execute_move(RIGHT, board), self, moveNode=True, moveToNode=RIGHT, depth=depth - 1),
+                Node(execute_move(UP, board), self, moveNode=True, moveToNode=UP, depth=depth - 1),
+                Node(execute_move(DOWN, board), self, moveNode=True, moveToNode=DOWN, depth=depth - 1)
+            ]
         else:
-            self.left = None
-            self.right = None
-            self.up = None
-            self.down = None
             self.children = []
 
-    def get_score(self):
-        score = 0
-        current_node = self
+        # if node is a move node, calculate the score by using the children
+        if parent is not None and moveNode:
+            # if the move is invalid, set the score to 0 and break
+            if board_equals(self.board, parent.board):
+                self.score = 0
+                return
 
-        # go as close to the root node as possible
-        while current_node.parent is not None:
-            score += np.dot(([1, 100], stats(self.board)))
-            current_node = current_node.parent
+            self.get_score_with_all_possible_moves()
+        else:  # if the node is not a move node, calculate the score based on the board
+            # if the non-move node has children, take the best score of the children that is a move node
+            if len(self.children) > 0:
+                self.score = max([child.score for child in self.children])
+            else:  # if they don't have children, calculate the score based on the board
+                self.score = Node.get_score_of_board(self.board)
 
-        return score
-
-    def get_move(self):
+    def get_score_with_all_possible_moves(self):
         """
-        Returns the move that was made to get to this node.
-        :return: the move that was made to get to this node
+        Calculates the score of the node based on the probability and score of its children.
+        :return: None
         """
-        current_node = self
-        prev_node = None
+        empty_cells = np.argwhere(self.board == 0)
 
-        # go as close to the root node as possible
-        while current_node.parent is not None:
-            prev_node = current_node
-            current_node = current_node.parent
+        possible_boards = []
+        for cell in empty_cells:
+            # add a 2 to the empty cell
+            new_board = self.board.copy()
+            new_board[cell[0]][cell[1]] = 2
+            probability = 0.9 / len(empty_cells)
+            possible_boards.append([Node(new_board, self, depth=self.depth, moveNode=False), probability])
+            # add a 4 to the empty cell
+            new_board = self.board.copy()
+            new_board[cell[0]][cell[1]] = 4
+            probability = 0.1 / len(empty_cells)
+            possible_boards.append([Node(new_board, self, depth=self.depth, moveNode=False), probability])
 
-        if current_node.left == prev_node:
-            return LEFT
-        elif current_node.right == prev_node:
-            return RIGHT
-        elif current_node.up == prev_node:
-            return UP
-        elif current_node.down == prev_node:
-            return DOWN
-        else:
-            return -1
+        # multiply the children's score with the probability of the board
+        self.score = np.add.reduce([child[0].score * child[1] for child in possible_boards])
+        self.children: list[Node] = list(map(lambda x: x[0], possible_boards))
 
-    def add_two_or_four(self, board):
+    @staticmethod
+    def get_score_of_board(board):
         """
-        Add a 2 or 4 to a random empty cell.
+        Calculates the score of a board.
+        :param board: the board to calculate the score of
+        :return: the score of the board
         """
-        empty_cells = np.argwhere(board == 0)
-        # if the board is full, break and penalize the score
-        if len(empty_cells) == 0:
-            self.score *= 0.5
-            return board
-        random_cell = random.choice(empty_cells)
-        board[random_cell[0]][random_cell[1]] = np.random.choice([2, 4], 1, p=[0.9, 0.1])
-        return board
+        free_cells = get_empty_tiles_score(board)
+        weighted_board_sum = np.sum(board * board_weights)
+        return np.dot([1, FREE_CELL_BIAS], [weighted_board_sum, free_cells ** 2])
 
     def getBestMove(self):
         """
-        Navigates the tree and finds out which move is the best
-        based on the score of the leafs.
-        :return: the best move to make
+        :return: the best move to make based on the score
         """
         # if node is not a parent node, break
         if self.parent is not None:
-            return None
+            raise NotImplementedError("This method can only be called on the root node.")
 
-        # traverse the tree and add all leafs to a list
-        leafs = self.get_leaf_nodes()
-        best_leaf = leafs[0]
+        return [node for node in self.children if node.score == self.score][0].moveToNode
 
-        # take the leaf with the highest score
-        for leaf in leafs:
-            if leaf.score > best_leaf.score:
-                best_leaf = leaf
-
-        # find the move that was made to get to the best leaf
-        return best_leaf.get_move()
-
-    def get_leaf_nodes(self):
-        leafs = []
-        def _get_leaf_nodes(node):
-            if node is not None:
-                if len(node.children) == 0:
-                    leafs.append(node)
-                for n in node.children:
-                    _get_leaf_nodes(n)
-        _get_leaf_nodes(self)
-        return leafs
 
 def find_best_move(board):
     """
@@ -132,15 +119,15 @@ def find_best_move(board):
     :param board:
     :return: best move to make
     """
-    root = Node(board, depth=2)  # build the tree with the possible moves
+
+    # adjust the tree depth based on the amount of empty tiles
+    empty_tiles = get_empty_tiles_score(board)
+
+    global FREE_CELL_BIAS
+    FREE_CELL_BIAS = 10 / (empty_tiles if empty_tiles > 0 else 1)
+
+    root = Node(board, depth=1 if empty_tiles > 8 else (2 if empty_tiles > 2 else 3))  # build the tree with the possible moves
     return root.getBestMove()
-
-
-def get_tile_value_score(board):
-    """
-    Return the score of the board based on the value of the tiles.
-    """
-    return np.sum(board ** 2)
 
 
 def get_empty_tiles_score(board):
@@ -148,20 +135,6 @@ def get_empty_tiles_score(board):
     Return the score of the board based on the amount of empty tiles in percentage.
     """
     return np.count_nonzero(board == 0)
-
-
-def stats(board):
-    free = get_empty_tiles_score(board)
-    weighted_board_sum = np.sum(board * board_weights)
-    return [weighted_board_sum, free**2]
-
-
-def amount_of_empty_tiles(board):
-    """
-    Count the amount of empty tiles on the board.
-    """
-    return np.count_nonzero(board == 0)
-
 
 def find_best_move_random_agent():
     return random.choice([UP, DOWN, LEFT, RIGHT])
