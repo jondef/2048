@@ -116,7 +116,7 @@ def find_best_move(board):
     # adjust the tree depth based on the amount of empty tiles
     empty_tiles = np.count_nonzero(board == 0)
 
-    root = Node(board, depth=1 if empty_tiles > 8 else (2 if empty_tiles > 2 else 3))  # build the tree with the possible moves
+    root = Node(board, depth=1 if empty_tiles > 8 else (2 if empty_tiles > 2 else (3 if empty_tiles > 1 else 4)))  # build the tree with the possible moves
     return root.getBestMove()
 
 def execute_move(move, board):
