@@ -7,21 +7,19 @@
 # Description: Helps the user achieve a high score in a real game of 2048 by using a move searcher.
 #              This Script initialize the AI and controls the game flow.
 
-
-#from __future__ import print_function
-
 import time
 
-import heuristicai as ai #for task 4
-#import searchai as ai #for task 5
-#import heuristicai_SOLUTION as ai #for task 4
-#import searchai_SOLUTION as ai #for task 5
+# import heuristicai as ai #for task 4
+import searchai as ai  # for task 5
+# import heuristicai_SOLUTION as ai #for task 4
+# import searchai_SOLUTION as ai #for task 5
 
 def print_board(m):
     for row in m:
         for c in row:
             print(f'{c:8d}', end=' ')
         print()
+
 
 def _to_val(c):
     if c == 0: return 0
