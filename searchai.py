@@ -16,8 +16,6 @@ board_weights = np.array([[10, 8, 7, 6.5],
                           [-.5, -1.5, -1.8, -2],
                           [-3.8, -3.7, -3.5, -3]])
 
-FREE_CELL_BIAS = 1.0
-
 
 class Node:
     def __init__(self, board, parent=None, moveNode=None, moveToNode=None, depth=2):
@@ -52,6 +50,8 @@ class Node:
             if board_equals(self.board, parent.board):
                 self.score = 0
                 return
+            else:
+                self.score += 1
 
             self.get_score_with_all_possible_moves()
         else:  # if the node is not a move node, calculate the score based on the board
@@ -82,7 +82,7 @@ class Node:
             possible_boards.append([Node(new_board, self, depth=self.depth, moveNode=False), probability])
 
         # multiply the children's score with the probability of the board
-        self.score = np.add.reduce([child[0].score * child[1] for child in possible_boards])
+        self.score += np.add.reduce([child[0].score * child[1] for child in possible_boards])
         self.children: list[Node] = list(map(lambda x: x[0], possible_boards))
 
     @staticmethod
@@ -94,7 +94,7 @@ class Node:
         """
         free_cells = np.count_nonzero(board == 0)
         weighted_board_sum = np.sum(board * board_weights)
-        return np.dot([1, FREE_CELL_BIAS], [weighted_board_sum, free_cells ** 2])
+        return np.dot([1, 1], [weighted_board_sum, free_cells ** 2])
 
     def getBestMove(self):
         """
@@ -115,10 +115,6 @@ def find_best_move(board):
 
     # adjust the tree depth based on the amount of empty tiles
     empty_tiles = np.count_nonzero(board == 0)
-
-    # adjust the scoring bias based on the amount of empty tiles
-    global FREE_CELL_BIAS
-    FREE_CELL_BIAS = 10 / (empty_tiles if empty_tiles > 0 else 1)
 
     root = Node(board, depth=1 if empty_tiles > 8 else (2 if empty_tiles > 2 else 3))  # build the tree with the possible moves
     return root.getBestMove()
