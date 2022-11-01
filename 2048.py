@@ -54,8 +54,10 @@ def play_game(gamectrl):
             gamectrl.continue_game()
 
         moveno += 1
+        avg_time = 0
         board = gamectrl.get_board()
         move = find_best_move(board)
+        avg_time += + (time.time() - start) / moveno
         if move < 0:
             break
         print(f"{time.time() - start:010.6f}: Score {gamectrl.get_score():d}, Move {moveno:d}: {movename(move)}")
@@ -64,6 +66,7 @@ def play_game(gamectrl):
     score = gamectrl.get_score()
     board = gamectrl.get_board()
     maxval = max(max(row) for row in to_val(board))
+    print(f"Average time per move {avg_time:010.6f}")
     print(f"Game over. Final score {score:d}; highest tile {maxval:d}.")
 
 def parse_args(argv):
