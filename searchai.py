@@ -11,10 +11,11 @@ import game
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
-board_weights = np.array([[10, 8, 7, 6.5],
-                          [.5, .7, 1, 3],
-                          [-.5, -1.5, -1.8, -2],
-                          [-3.8, -3.7, -3.5, -3]])
+board_weights = np.array([2048, 1024, 64, 32],
+    [512, 128, 16, 2],
+    [256, 8, 2, 1],
+    [4, 2, 1, 1]
+)
 
 
 class Node:
