@@ -21,10 +21,10 @@ board_weights_corner = np.array([[2 ** 6, 2 ** 5, 2 ** 4, 2 ** 3],
                                  [2 ** 4, 2 ** 3, 2 ** 2, 2 ** 1],
                                  [2 ** 3, 2 ** 2, 2 ** 1, 2 ** 0]])
 
-board_weights_mixed = np.array([2048, 1024, 64, 32],
+board_weights_mixed = np.array([[2048, 1024, 64, 32],
                                [512, 128, 16, 2],
                                [256, 8, 2, 1],
-                               [4, 2, 1, 1])
+                               [4, 2, 1, 1]])
 
 board_weights = board_weights_corner
 
