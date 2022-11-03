@@ -43,14 +43,39 @@ def heuristicai_move(board, searches_per_move, search_length):
     return final_board, position_valid
 
 
+def get_score_of_board_empty_tiles(board):
+    """
+    Calculates the score of a board based on the amount of empty tiles
+    :param board: the board to calculate the score of
+    :return: the score of the board
+    """
+    return np.count_nonzero(board == 0)
+
+def get_score_of_board_sum_of_tiles(board):
+    """
+    Calculates the score of a board based on the sum of all tiles
+    :param board: the board to calculate the score of
+    :return: the score of the board
+    """
+    return np.sum(board)
+
 def find_best_move(board):
     bestmove = -1
+    bestscore = -1
 
-    # TODO:
-    # Build a heuristic agent on your own that is much better than the random agent.
-    # Your own agent don't have to beat the game.
-    # bestmove = find_best_move_random_agent()
-    bestmove = heuristicai_move(board, [1,4], 4)
+    # try every possible move, calculate the score for each move and return the move with the highest score
+    for move in [UP, DOWN, LEFT, RIGHT]:
+        newboard = execute_move(move, board)
+
+        if board_equals(board, newboard):
+            continue  # invalid move
+
+        # calculate score for board
+        score = get_score_of_board_sum_of_tiles(newboard) + 0.1 * get_score_of_board_empty_tiles(newboard)
+
+        if bestmove == -1 or score > bestscore:
+            bestmove = move
+            bestscore = score
 
     return bestmove
 
