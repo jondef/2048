@@ -11,11 +11,22 @@ import game
 
 UP, DOWN, LEFT, RIGHT = 0, 1, 2, 3
 
-board_weights = np.array([2048, 1024, 64, 32],
-    [512, 128, 16, 2],
-    [256, 8, 2, 1],
-    [4, 2, 1, 1]
-)
+board_weights_snake = np.array([[2 ** 15, 2 ** 14, 2 ** 13, 2 ** 12],
+                                [2 ** 8, 2 ** 9, 2 ** 10, 2 ** 11],
+                                [2 ** 7, 2 ** 6, 2 ** 5, 2 ** 4],
+                                [2 ** 0, 2 ** 1, 2 ** 2, 2 ** 3]])
+
+board_weights_corner = np.array([[2 ** 6, 2 ** 5, 2 ** 4, 2 ** 3],
+                                 [2 ** 5, 2 ** 4, 2 ** 3, 2 ** 2],
+                                 [2 ** 4, 2 ** 3, 2 ** 2, 2 ** 1],
+                                 [2 ** 3, 2 ** 2, 2 ** 1, 2 ** 0]])
+
+board_weights_mixed = np.array([2048, 1024, 64, 32],
+                               [512, 128, 16, 2],
+                               [256, 8, 2, 1],
+                               [4, 2, 1, 1])
+
+board_weights = board_weights_corner
 
 
 class Node:
@@ -95,7 +106,7 @@ class Node:
         """
         free_cells = np.count_nonzero(board == 0)
         weighted_board_sum = np.sum(board * board_weights)
-        return np.dot([1, 1], [weighted_board_sum, free_cells ** 2])
+        return np.dot([1, 0.1], [weighted_board_sum, free_cells])
 
     def getBestMove(self):
         """
