@@ -3,6 +3,7 @@ import random
 import game
 import sys
 import numpy as np
+from searchai import board_weights
 
 # Author:				chrn (original by nneonneo)
 # Date:				11.11.2016
@@ -57,7 +58,7 @@ def get_score_of_board_sum_of_tiles(board):
     :param board: the board to calculate the score of
     :return: the score of the board
     """
-    return np.sum(board)
+    return np.sum(board * board_weights)
 
 def find_best_move(board):
     bestmove = -1
